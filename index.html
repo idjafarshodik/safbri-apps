@@ -25,6 +25,8 @@
 </head>
 <body class="min-h-screen text-pln-text bg-pln-bg flex flex-col items-center p-4 pt-12 md:pt-16">
 
+  <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-xl text-white font-bold text-sm transition-all duration-300 z-50 transform -translate-y-20 opacity-0 pointer-events-none text-center min-w-[280px]"></div>
+
   <div class="w-full max-w-md mb-8 flex flex-col items-center">
     <h1 class="text-2xl font-extrabold text-pln-dark mb-8 tracking-wide text-center">
       SAFBRI ULTG SAMPANG
@@ -56,7 +58,7 @@
           </div>
           <div>
             <label class="block text-sm font-bold text-pln-muted mb-1">Lokasi Pekerjaan</label>
-            <input id="lokasi" type="text" class="kahoot-input w-full" placeholder="Contoh: GI Sampang" required />
+            <input id="lokasi" type="text" class="kahoot-input w-full" placeholder="Contoh: GI Pamekasan" required />
           </div>
         </div>
         <button type="button" onclick="nextStep(2)" class="btn-kahoot w-full mt-8 bg-pln-main text-white">Lanjut Ke Pelaksana ➔</button>
@@ -90,63 +92,57 @@
 
       <div id="step-3" class="step-card p-6 md:p-8 h-full">
         <h2 class="text-xl font-extrabold text-pln-dark mb-2 text-center">Foto Working Permit</h2>
-        <p class="text-center text-sm text-pln-muted mb-4">Pastikan dokumen terbaca dengan jelas.</p>
+        <p class="text-center text-sm text-pln-muted mb-4">Rekomendasi: Posisi <strong class="text-pln-dark">Portrait (Berdiri)</strong>.</p>
         
-        <div class="media-container relative bg-black rounded-xl overflow-hidden flex-1 min-h-[250px] mb-4 flex items-center justify-center">
-          <video id="video-WP" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
-          <img id="preview-WP" class="absolute inset-0 w-full h-full object-contain hidden z-10 bg-white" />
+        <div class="flex-1 flex flex-col justify-center items-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 mb-4 relative min-h-[280px]">
+          <img id="preview-WP" class="absolute inset-0 w-full h-full object-contain hidden z-10 bg-gray-50 rounded-xl p-2" />
           
-          <div id="guide-WP" class="absolute inset-y-2 inset-x-12 md:inset-x-20 border-2 border-dashed border-white/70 rounded-lg pointer-events-none hidden z-0 flex items-center justify-center">
-            <span class="bg-black/60 text-white text-[10px] px-3 py-1 rounded-full backdrop-blur-sm text-center">Posisikan Kertas Disini<br/>(Portrait)</span>
-          </div>
-          
-          <div id="init-ui-WP" class="z-10 flex flex-col items-center gap-3 w-full px-4">
-            <button type="button" onclick="startCamera('WP')" class="btn-kahoot w-full bg-blue-600 text-white text-sm">📸 Gunakan Kamera Live</button>
-            <div class="relative w-full text-center">
-              <span class="bg-black text-white/50 text-xs px-2 relative z-10">ATAU</span>
-              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/20"></div></div>
+          <div id="init-ui-WP" class="w-full flex flex-col gap-3">
+            <label class="btn-kahoot w-full bg-blue-600 text-white text-sm cursor-pointer text-center block">
+              📸 Buka Kamera HP
+              <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleFile(this, 'WP')" />
+            </label>
+            <div class="relative w-full text-center my-2">
+              <span class="bg-gray-50 text-gray-400 text-xs px-2 relative z-10">ATAU</span>
+              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
             </div>
             <label class="btn-kahoot w-full bg-gray-700 text-white text-sm cursor-pointer text-center block">
               📁 Pilih Dari Galeri
-              <input id="file-WP" type="file" accept="image/*" class="hidden" onchange="handleFile(this, 'WP')" />
+              <input type="file" accept="image/*" class="hidden" onchange="handleFile(this, 'WP')" />
             </label>
           </div>
           
-          <button type="button" id="snap-btn-WP" onclick="takeSnapshot('WP')" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-14 h-14 bg-white rounded-full border-4 border-gray-300 shadow-lg hidden z-20 active:scale-90 transition-transform"></button>
           <button type="button" id="retake-btn-WP" onclick="resetMedia('WP')" class="absolute top-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold hidden z-20 shadow-md">Ulangi</button>
         </div>
 
         <div class="flex gap-3 mt-auto">
           <button type="button" onclick="prevStep(2)" class="btn-kahoot w-1/3 bg-gray-200 text-gray-700">Kembali</button>
-          <button type="button" onclick="nextStep(4, 'WP')" class="btn-kahoot w-2/3 bg-pln-main text-white">Lanjut ➔</button>
+          <button type="button" onclick="nextStep(4)" class="btn-kahoot w-2/3 bg-pln-main text-white">Lanjut ➔</button>
         </div>
       </div>
 
       <div id="step-4" class="step-card p-6 md:p-8 h-full">
         <h2 class="text-xl font-extrabold text-pln-dark mb-2 text-center">Foto Safety Briefing</h2>
-        <p class="text-center text-sm text-pln-muted mb-4">Pastikan seluruh tim masuk ke dalam frame.</p>
+        <p class="text-center text-sm text-pln-muted mb-4">Rekomendasi: Posisi <strong class="text-pln-dark">Landscape (Mendatar)</strong>.</p>
         
-        <div class="media-container relative bg-black rounded-xl overflow-hidden flex-1 min-h-[250px] mb-4 flex items-center justify-center">
-          <video id="video-SB" class="absolute inset-0 w-full h-full object-cover hidden" autoplay playsinline></video>
-          <img id="preview-SB" class="absolute inset-0 w-full h-full object-contain hidden z-10 bg-white" />
+        <div class="flex-1 flex flex-col justify-center items-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 mb-4 relative min-h-[280px]">
+          <img id="preview-SB" class="absolute inset-0 w-full h-full object-contain hidden z-10 bg-gray-50 rounded-xl p-2" />
           
-          <div id="guide-SB" class="absolute inset-x-2 inset-y-16 md:inset-y-20 border-2 border-dashed border-white/70 rounded-lg pointer-events-none hidden z-0 flex items-center justify-center">
-            <span class="bg-black/60 text-white text-[10px] px-3 py-1 rounded-full backdrop-blur-sm text-center">Posisikan Tim Disini<br/>(Landscape)</span>
-          </div>
-          
-          <div id="init-ui-SB" class="z-10 flex flex-col items-center gap-3 w-full px-4">
-            <button type="button" onclick="startCamera('SB')" class="btn-kahoot w-full bg-blue-600 text-white text-sm">📸 Gunakan Kamera Live</button>
-            <div class="relative w-full text-center">
-              <span class="bg-black text-white/50 text-xs px-2 relative z-10">ATAU</span>
-              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/20"></div></div>
+          <div id="init-ui-SB" class="w-full flex flex-col gap-3">
+            <label class="btn-kahoot w-full bg-blue-600 text-white text-sm cursor-pointer text-center block">
+              📸 Buka Kamera HP
+              <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleFile(this, 'SB')" />
+            </label>
+            <div class="relative w-full text-center my-2">
+              <span class="bg-gray-50 text-gray-400 text-xs px-2 relative z-10">ATAU</span>
+              <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-300"></div></div>
             </div>
             <label class="btn-kahoot w-full bg-gray-700 text-white text-sm cursor-pointer text-center block">
               📁 Pilih Dari Galeri
-              <input id="file-SB" type="file" accept="image/*" class="hidden" onchange="handleFile(this, 'SB')" />
+              <input type="file" accept="image/*" class="hidden" onchange="handleFile(this, 'SB')" />
             </label>
           </div>
           
-          <button type="button" id="snap-btn-SB" onclick="takeSnapshot('SB')" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-14 h-14 bg-white rounded-full border-4 border-gray-300 shadow-lg hidden z-20 active:scale-90 transition-transform"></button>
           <button type="button" id="retake-btn-SB" onclick="resetMedia('SB')" class="absolute top-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold hidden z-20 shadow-md">Ulangi</button>
         </div>
 

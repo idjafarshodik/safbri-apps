@@ -1,10 +1,24 @@
 let currentStep = 1;
 const titles = ['Data Pekerjaan', 'Data Pelaksana', 'Foto Working Permit', 'Foto Safety Briefing'];
 const images = { WP: null, SB: null };
-const mediaSource = { WP: null, SB: null };
-let cameraStream = null;
 
 flatpickr("#tanggal_pekerjaan", { dateFormat: "d/m/Y", disableMobile: true });
+
+const showToast = (message, isError = false) => {
+  const toast = document.getElementById('toast');
+  toast.innerText = message;
+  toast.className = `fixed top-5 left-1/2 -translate-x-1/2 px-6 py-3 rounded-lg shadow-xl text-white font-bold text-sm transition-all duration-300 z-50 transform -translate-y-20 opacity-0 pointer-events-none text-center min-w-[280px] ${isError ? 'bg-red-500' : 'bg-green-500'}`;
+  
+  requestAnimationFrame(() => {
+    toast.classList.remove('-translate-y-20', 'opacity-0');
+    toast.classList.add('translate-y-0', 'opacity-100');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('translate-y-0', 'opacity-100');
+    toast.classList.add('-translate-y-20', 'opacity-0');
+  }, 3500);
+};
 
 const updateUI = () => {
   document.querySelectorAll('.step-card').forEach((el, index) => {
@@ -28,7 +42,7 @@ const validateStep = (step) => {
   });
   
   if (step === 3 && !images.WP) { 
-    alert("Harap ambil/pilih foto Working Permit terlebih dahulu!"); 
+    showToast("Harap ambil foto Working Permit!", true); 
     return false; 
   }
   return isValid;
@@ -36,117 +50,43 @@ const validateStep = (step) => {
 
 const nextStep = (targetStep) => {
   if (validateStep(currentStep)) {
-    stopCamera();
     currentStep = targetStep;
     updateUI();
   } else {
-    alert("Harap lengkapi semua kolom yang diwajibkan.");
+    showToast("Harap lengkapi data yang diwajibkan.", true);
   }
 };
 
 const prevStep = (targetStep) => {
-  stopCamera();
   currentStep = targetStep;
   updateUI();
 };
 
-const startCamera = async (type) => {
-  const video = document.getElementById(`video-${type}`);
-  const guide = document.getElementById(`guide-${type}`);
-  const ui = document.getElementById(`init-ui-${type}`);
-  const snapBtn = document.getElementById(`snap-btn-${type}`);
-  
-  try {
-    cameraStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { 
-        facingMode: "environment",
-        width: { ideal: 4096 },
-        height: { ideal: 2160 }
-      }
-    });
-    video.srcObject = cameraStream;
-    
-    ui.classList.add('hidden');
-    video.classList.remove('hidden');
-    guide.classList.remove('hidden');
-    snapBtn.classList.remove('hidden');
-  } catch (error) {
-    alert("Akses kamera ditolak atau tidak didukung browser ini. Silakan gunakan tombol Galeri.");
-  }
-};
-
-const stopCamera = () => {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-    cameraStream = null;
-  }
-};
-
-const takeSnapshot = (type) => {
-  const video = document.getElementById(`video-${type}`);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  
-  const vW = video.videoWidth;
-  const vH = video.videoHeight;
-  
-  const targetRatio = type === 'SB' ? 16 / 9 : 3 / 4;
-  const videoRatio = vW / vH;
-  
-  let sWidth = vW;
-  let sHeight = vH;
-  let sx = 0;
-  let sy = 0;
-  
-  if (videoRatio > targetRatio) {
-    sWidth = vH * targetRatio;
-    sx = (vW - sWidth) / 2;
-  } else {
-    sHeight = vW / targetRatio;
-    sy = (vH - sHeight) / 2;
-  }
-  
-  canvas.width = sWidth;
-  canvas.height = sHeight;
-  
-  ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
-  
-  mediaSource[type] = 'camera';
-  processImageResult(canvas.toDataURL('image/jpeg', 0.95), type);
-  stopCamera();
-};
-
 const handleFile = (input, type) => {
   if (input.files && input.files[0]) {
-    mediaSource[type] = 'file';
     const reader = new FileReader();
-    reader.onload = (e) => processImageResult(e.target.result, type);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        images[type] = img;
+        
+        document.getElementById(`init-ui-${type}`).classList.add('hidden');
+        
+        const preview = document.getElementById(`preview-${type}`);
+        preview.src = e.target.result;
+        preview.classList.remove('hidden');
+        
+        document.getElementById(`retake-btn-${type}`).classList.remove('hidden');
+      };
+      img.src = e.target.result;
+    };
     reader.readAsDataURL(input.files[0]);
   }
-};
-
-const processImageResult = (dataUrl, type) => {
-  const img = new Image();
-  img.onload = () => {
-    images[type] = img;
-    
-    document.getElementById(`video-${type}`).classList.add('hidden');
-    document.getElementById(`guide-${type}`).classList.add('hidden');
-    document.getElementById(`snap-btn-${type}`).classList.add('hidden');
-    document.getElementById(`init-ui-${type}`).classList.add('hidden');
-    
-    const preview = document.getElementById(`preview-${type}`);
-    preview.src = dataUrl;
-    preview.classList.remove('hidden');
-    
-    document.getElementById(`retake-btn-${type}`).classList.remove('hidden');
-  };
-  img.src = dataUrl;
+  input.value = '';
 };
 
 const resetMedia = (type) => {
   images[type] = null;
-  mediaSource[type] = null;
   document.getElementById(`preview-${type}`).classList.add('hidden');
   document.getElementById(`retake-btn-${type}`).classList.add('hidden');
   document.getElementById(`init-ui-${type}`).classList.remove('hidden');
@@ -156,52 +96,26 @@ const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  const isFileOnly = mediaSource.SB === 'file' && mediaSource.WP === 'file';
-  const isLandscapeSB = images.SB.width > images.SB.height;
-  const isLandscapeWP = images.WP.width > images.WP.height;
-
-  if (isFileOnly && (!isLandscapeSB || !isLandscapeWP)) {
-    const targetWidth = 1000;
-    const hSB = (images.SB.height / images.SB.width) * targetWidth;
-    const hWP = (images.WP.height / images.WP.width) * targetWidth;
-    const canvasHeight = Math.max(hSB, hWP);
-    
-    canvas.width = targetWidth * 2;
-    canvas.height = canvasHeight;
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.drawImage(images.SB, 0, (canvasHeight - hSB) / 2, targetWidth, hSB);
-    ctx.drawImage(images.WP, targetWidth, (canvasHeight - hWP) / 2, targetWidth, hWP);
-    
-    ctx.beginPath();
-    ctx.moveTo(targetWidth, 0);
-    ctx.lineTo(targetWidth, canvasHeight);
-    ctx.strokeStyle = '#e1e8eb';
-    ctx.lineWidth = 6;
-    ctx.stroke();
-  } else {
-    const targetWidth = 1400;
-    const hSB = (images.SB.height / images.SB.width) * targetWidth;
-    const hWP = (images.WP.height / images.WP.width) * targetWidth;
-    
-    canvas.width = targetWidth;
-    canvas.height = hSB + hWP;
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
-    ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
-    
-    ctx.beginPath();
-    ctx.moveTo(0, hSB);
-    ctx.lineTo(targetWidth, hSB);
-    ctx.strokeStyle = '#e1e8eb';
-    ctx.lineWidth = 10;
-    ctx.stroke();
-  }
+  const targetWidth = 1600;
+  
+  const hSB = (images.SB.height / images.SB.width) * targetWidth;
+  const hWP = (images.WP.height / images.WP.width) * targetWidth;
+  
+  canvas.width = targetWidth;
+  canvas.height = hSB + hWP;
+  
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
+  ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
+  
+  ctx.beginPath();
+  ctx.moveTo(0, hSB);
+  ctx.lineTo(targetWidth, hSB);
+  ctx.strokeStyle = '#e1e8eb';
+  ctx.lineWidth = 16;
+  ctx.stroke();
 
   return canvas.toDataURL('image/jpeg', 0.85); 
 };
@@ -209,7 +123,7 @@ const generateCollage = () => {
 document.getElementById('safetyForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!images.SB) { 
-    alert("Harap ambil/pilih foto Safety Briefing terlebih dahulu!"); 
+    showToast("Harap ambil foto Safety Briefing!", true); 
     return; 
   }
   
@@ -236,14 +150,15 @@ document.getElementById('safetyForm').addEventListener('submit', async (e) => {
     });
 
     if (response.ok) {
-      alert("Laporan berhasil diverifikasi dan dikirim.");
-      window.location.reload();
+      showToast("Laporan berhasil dikirim!", false);
+      setTimeout(() => window.location.reload(), 2000);
     } else {
-      alert("Transmisi gagal. Periksa stabilitas koneksi.");
+      showToast("Gagal. Periksa koneksi internet.", true);
+      btn.disabled = false;
+      btn.innerText = 'KIRIM LAPORAN ✔';
     }
   } catch (error) {
-    alert("Terjadi anomali pada sistem internal.");
-  } finally {
+    showToast("Terjadi anomali server.", true);
     btn.disabled = false;
     btn.innerText = 'KIRIM LAPORAN ✔';
   }
