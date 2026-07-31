@@ -96,28 +96,54 @@ const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  const targetWidth = 1600;
-  
-  const hSB = (images.SB.height / images.SB.width) * targetWidth;
-  const hWP = (images.WP.height / images.WP.width) * targetWidth;
-  
-  canvas.width = targetWidth;
-  canvas.height = hSB + hWP;
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
-  ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
-  
-  ctx.beginPath();
-  ctx.moveTo(0, hSB);
-  ctx.lineTo(targetWidth, hSB);
-  ctx.strokeStyle = '#e1e8eb';
-  ctx.lineWidth = 16;
-  ctx.stroke();
+  const isFileOnly = mediaSource.SB === 'file' && mediaSource.WP === 'file';
+  const isPortraitSB = images.SB.width <= images.SB.height;
+  const isPortraitWP = images.WP.width <= images.WP.height;
 
-  return canvas.toDataURL('image/jpeg', 0.85); 
+  if (isFileOnly && isPortraitSB && isPortraitWP) {
+    const targetWidth = 1200;
+    const hSB = (images.SB.height / images.SB.width) * targetWidth;
+    const hWP = (images.WP.height / images.WP.width) * targetWidth;
+    const canvasHeight = Math.max(hSB, hWP);
+    
+    canvas.width = targetWidth * 2;
+    canvas.height = canvasHeight;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.drawImage(images.SB, 0, (canvasHeight - hSB) / 2, targetWidth, hSB);
+    ctx.drawImage(images.WP, targetWidth, (canvasHeight - hWP) / 2, targetWidth, hWP);
+    
+    ctx.beginPath();
+    ctx.moveTo(targetWidth, 0);
+    ctx.lineTo(targetWidth, canvasHeight);
+    ctx.strokeStyle = '#e1e8eb';
+    ctx.lineWidth = 10;
+    ctx.stroke();
+  } else {
+    const targetWidth = 1600;
+    const hSB = (images.SB.height / images.SB.width) * targetWidth;
+    const hWP = (images.WP.height / images.WP.width) * targetWidth;
+    
+    canvas.width = targetWidth;
+    canvas.height = hSB + hWP;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
+    ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
+    
+    ctx.beginPath();
+    ctx.moveTo(0, hSB);
+    ctx.lineTo(targetWidth, hSB);
+    ctx.strokeStyle = '#e1e8eb';
+    ctx.lineWidth = 16;
+    ctx.stroke();
+  }
+
+  return canvas.toDataURL('image/jpeg', 0.92); 
 };
 
 document.getElementById('safetyForm').addEventListener('submit', async (e) => {
