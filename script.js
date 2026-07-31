@@ -58,7 +58,11 @@ const startCamera = async (type) => {
   
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment" }
+      video: { 
+        facingMode: "environment",
+        width: { ideal: 4096 },
+        height: { ideal: 2160 }
+      }
     });
     video.srcObject = cameraStream;
     
@@ -86,28 +90,29 @@ const takeSnapshot = (type) => {
   const vW = video.videoWidth;
   const vH = video.videoHeight;
   
-  let tW, tH;
-  if (type === 'SB') {
-    tW = Math.max(vW, vH);
-    tH = tW * (9 / 16); 
+  const targetRatio = type === 'SB' ? 16 / 9 : 3 / 4;
+  const videoRatio = vW / vH;
+  
+  let sWidth = vW;
+  let sHeight = vH;
+  let sx = 0;
+  let sy = 0;
+  
+  if (videoRatio > targetRatio) {
+    sWidth = vH * targetRatio;
+    sx = (vW - sWidth) / 2;
   } else {
-    tH = Math.max(vW, vH);
-    tW = tH * (3 / 4);
+    sHeight = vW / targetRatio;
+    sy = (vH - sHeight) / 2;
   }
   
-  canvas.width = tW;
-  canvas.height = tH;
+  canvas.width = sWidth;
+  canvas.height = sHeight;
   
-  const ratio = Math.max(tW / vW, tH / vH);
-  const cW = vW * ratio;
-  const cH = vH * ratio;
-  const cX = (tW - cW) / 2;
-  const cY = (tH - cH) / 2;
-  
-  ctx.drawImage(video, cX, cY, cW, cH);
+  ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, sWidth, sHeight);
   
   mediaSource[type] = 'camera';
-  processImageResult(canvas.toDataURL('image/jpeg', 0.9), type);
+  processImageResult(canvas.toDataURL('image/jpeg', 0.95), type);
   stopCamera();
 };
 
@@ -177,7 +182,7 @@ const generateCollage = () => {
     ctx.lineWidth = 6;
     ctx.stroke();
   } else {
-    const targetWidth = 1200;
+    const targetWidth = 1400;
     const hSB = (images.SB.height / images.SB.width) * targetWidth;
     const hWP = (images.WP.height / images.WP.width) * targetWidth;
     
