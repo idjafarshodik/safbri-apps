@@ -1,10 +1,8 @@
-// --- STATE MANAGEMENT ---
 let currentStep = 1;
 const titles = ['Data Pekerjaan', 'Data Pelaksana', 'Foto Working Permit', 'Foto Safety Briefing'];
-const images = { WP: null, SB: null }; // Menyimpan objek gambar
+const images = { WP: null, SB: null };
 let cameraStream = null;
 
-// --- INITIALIZATION ---
 flatpickr("#tanggal_pekerjaan", { dateFormat: "d/m/Y", disableMobile: true });
 
 const updateUI = () => {
@@ -16,7 +14,6 @@ const updateUI = () => {
   document.getElementById('progress-bar').style.width = `${(currentStep / 4) * 100}%`;
 };
 
-// --- NAVIGATION LOGIC ---
 const validateStep = (step) => {
   const inputs = document.querySelectorAll(`#step-${step} input[required]`);
   let isValid = true;
@@ -29,14 +26,16 @@ const validateStep = (step) => {
     }
   });
   
-  if (step === 3 && !images.WP) { alert("Harap ambil/pilih foto Working Permit terlebih dahulu!"); return false; }
-  
+  if (step === 3 && !images.WP) { 
+    alert("Harap ambil/pilih foto Working Permit terlebih dahulu!"); 
+    return false; 
+  }
   return isValid;
 };
 
 const nextStep = (targetStep, currentMediaStep) => {
   if (validateStep(currentStep)) {
-    stopCamera(); // Matikan kamera setiap kali pindah halaman
+    stopCamera();
     currentStep = targetStep;
     updateUI();
   } else {
@@ -50,7 +49,6 @@ const prevStep = (targetStep) => {
   updateUI();
 };
 
-// --- CAMERA & MEDIA LOGIC ---
 const startCamera = async (type) => {
   const video = document.getElementById(`video-${type}`);
   const guide = document.getElementById(`guide-${type}`);
@@ -59,7 +57,7 @@ const startCamera = async (type) => {
   
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: "environment" } // Prioritas kamera belakang
+      video: { facingMode: "environment" }
     });
     video.srcObject = cameraStream;
     
@@ -101,9 +99,8 @@ const handleFile = (input, type) => {
 const processImageResult = (dataUrl, type) => {
   const img = new Image();
   img.onload = () => {
-    images[type] = img; // Simpan ke state
+    images[type] = img;
     
-    // Update UI Preview
     document.getElementById(`video-${type}`).classList.add('hidden');
     document.getElementById(`guide-${type}`).classList.add('hidden');
     document.getElementById(`snap-btn-${type}`).classList.add('hidden');
@@ -125,31 +122,23 @@ const resetMedia = (type) => {
   document.getElementById(`init-ui-${type}`).classList.remove('hidden');
 };
 
-// --- STRICT VERTICAL COLLAGE LOGIC ---
 const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  // Mengikuti standar pusat: Atas-Bawah persis seperti Referensi Gambar 2
-  // Top: Safety Briefing (SB) | Bottom: Working Permit (WP)
-  const targetWidth = 1200; // Resolusi tinggi agar tulisan WP terbaca jelas
-  
-  // Hitung tinggi proporsional berdasarkan target lebar 1200px
+  const targetWidth = 1200;
   const hSB = (images.SB.height / images.SB.width) * targetWidth;
   const hWP = (images.WP.height / images.WP.width) * targetWidth;
   
   canvas.width = targetWidth;
-  canvas.height = hSB + hWP; // Tinggi total = gabungan keduanya
+  canvas.height = hSB + hWP;
   
-  // Background putih
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
-  // Gambar disusun berurutan dari atas ke bawah
   ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
   ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
   
-  // Beri garis pembatas tegas di antara kedua foto
   ctx.beginPath();
   ctx.moveTo(0, hSB);
   ctx.lineTo(targetWidth, hSB);
@@ -160,10 +149,12 @@ const generateCollage = () => {
   return canvas.toDataURL('image/jpeg', 0.85); 
 };
 
-// --- SUBMIT LOGIC ---
 document.getElementById('safetyForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  if (!images.SB) { alert("Harap ambil/pilih foto Safety Briefing terlebih dahulu!"); return; }
+  if (!images.SB) { 
+    alert("Harap ambil/pilih foto Safety Briefing terlebih dahulu!"); 
+    return; 
+  }
   
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
