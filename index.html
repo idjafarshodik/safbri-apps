@@ -180,9 +180,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <h2 class="text-2xl font-extrabold text-pln-dark mb-2">Laporan Terkirim!</h2>
-          <p class="text-pln-muted mb-8 text-sm">Data pekerjaan dan dokumentasi telah berhasil disubmit ke bot Telegram/WA.</p>
-          <button type="button" onclick="startNewReport()" class="font-bold text-pln-main hover:text-pln-dark transition-colors underline underline-offset-4 decoration-2">
+          <h2 class="text-2xl font-extrabold text-pln-dark mb-2">Sukses!</h2>
+          <p class="text-pln-muted mb-8 text-sm">Data pekerjaan dan dokumentasi telah berhasil dikirim.</p>
+          <button type="button" onclick="startNewReport()" class="text-xs font-medium text-gray-400 hover:text-gray-600 transition-all opacity-60 hover:opacity-100 underline underline-offset-2">
             Buat Laporan Baru
           </button>
         </div>
@@ -196,7 +196,7 @@
             </svg>
           </div>
           <h2 class="text-2xl font-extrabold text-red-600 mb-2">Pengiriman Gagal</h2>
-          <p class="text-pln-muted mb-8 text-sm">Terjadi masalah koneksi atau anomali server. Jangan khawatir, draf foto dan teks Anda masih aman.</p>
+          <p class="text-pln-muted mb-8 text-sm">Terjadi masalah koneksi atau anomali server.</p>
           <div class="flex gap-3 w-full">
             <button type="button" onclick="prevStep(4)" class="btn-kahoot w-full bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-300">
               KEMBALI & COBA LAGI
@@ -207,7 +207,9 @@
 
     </form>
   </div>
-
+  <footer class="mt-8 text-center text-[10px] font-bold text-pln-muted/60 tracking-widest uppercase pb-6">
+    &copy; ULTG Sampang 2026
+  </footer>
   <script src="script.js"></script>
 </body>
 </html>
