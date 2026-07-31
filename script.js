@@ -181,48 +181,37 @@ const generateCollage = () => {
   
   const isPortraitSB = images.SB.width <= images.SB.height;
   const isPortraitWP = images.WP.width <= images.WP.height;
+  
+  const gap = 32; 
 
   if (isPortraitSB && isPortraitWP) {
     const targetWidth = 1200;
     const hSB = (images.SB.height / images.SB.width) * targetWidth;
     const hWP = (images.WP.height / images.WP.width) * targetWidth;
-    const canvasHeight = Math.max(hSB, hWP);
-    
-    canvas.width = targetWidth * 2;
-    canvas.height = canvasHeight;
-    
+    const innerHeight = Math.max(hSB, hWP);
+
+    canvas.width = (targetWidth * 2) + (gap * 3);
+    canvas.height = innerHeight + (gap * 2);
+
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+    ctx.drawImage(images.SB, gap, gap + (innerHeight - hSB) / 2, targetWidth, hSB);
+    ctx.drawImage(images.WP, (gap * 2) + targetWidth, gap + (innerHeight - hWP) / 2, targetWidth, hWP);
     
-    ctx.drawImage(images.SB, 0, (canvasHeight - hSB) / 2, targetWidth, hSB);
-    ctx.drawImage(images.WP, targetWidth, (canvasHeight - hWP) / 2, targetWidth, hWP);
-    
-    ctx.beginPath();
-    ctx.moveTo(targetWidth, 0);
-    ctx.lineTo(targetWidth, canvasHeight);
-    ctx.strokeStyle = '#e1e8eb';
-    ctx.lineWidth = 10;
-    ctx.stroke();
   } else {
     const targetWidth = 1600;
     const hSB = (images.SB.height / images.SB.width) * targetWidth;
     const hWP = (images.WP.height / images.WP.width) * targetWidth;
     
-    canvas.width = targetWidth;
-    canvas.height = hSB + hWP;
+    canvas.width = targetWidth + (gap * 2);
+    canvas.height = hSB + hWP + (gap * 3);
     
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
-    ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
-    
-    ctx.beginPath();
-    ctx.moveTo(0, hSB);
-    ctx.lineTo(targetWidth, hSB);
-    ctx.strokeStyle = '#e1e8eb';
-    ctx.lineWidth = 16;
-    ctx.stroke();
+    ctx.drawImage(images.SB, gap, gap, targetWidth, hSB);
+    ctx.drawImage(images.WP, gap, (gap * 2) + hSB, targetWidth, hWP);
   }
 
   return canvas.toDataURL('image/jpeg', 0.92); 
@@ -259,7 +248,8 @@ document.getElementById('safetyForm').addEventListener('submit', async (e) => {
 
     if (response.ok) {
       localStorage.clear(); 
-      currentStep = 5;     
+      currentStep = 5;    
+      updateUI(); 
     } else {
       btn.disabled = false;
       btn.innerText = 'KIRIM LAPORAN ✔';
