@@ -181,7 +181,6 @@ document.getElementById('safetyForm').addEventListener('submit', async (e) => {
       foto_collage: generateCollage()
     };
 
-    // Ingat: pastikan ini diarahkan ke fungsi middleware '/api/submit' di production
     const response = await fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
