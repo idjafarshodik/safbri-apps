@@ -91,31 +91,58 @@ const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  const imgWidth = 1000; 
-  
-  const heightSB = (imgSB.height / imgSB.width) * imgWidth;
-  const heightWP = (imgWP.height / imgWP.width) * imgWidth;
+  const isLandscapeSB = imgSB.width > imgSB.height;
+  const isLandscapeWP = imgWP.width > imgWP.height;
 
-  const canvasHeight = Math.max(heightSB, heightWP);
-  
-  canvas.width = imgWidth * 2; 
-  canvas.height = canvasHeight; 
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  const ySB = (canvasHeight - heightSB) / 2;
-  ctx.drawImage(imgSB, 0, ySB, imgWidth, heightSB);
-  
-  const yWP = (canvasHeight - heightWP) / 2;
-  ctx.drawImage(imgWP, imgWidth, yWP, imgWidth, heightWP);
-  
-  ctx.beginPath();
-  ctx.moveTo(imgWidth, 0);
-  ctx.lineTo(imgWidth, canvasHeight);
-  ctx.strokeStyle = '#e1e8eb';
-  ctx.lineWidth = 6;
-  ctx.stroke();
+  if (isLandscapeSB && isLandscapeWP) {
+    const imgWidth = 1400; 
+    
+    const heightSB = (imgSB.height / imgSB.width) * imgWidth;
+    const heightWP = (imgWP.height / imgWP.width) * imgWidth;
+    
+    canvas.width = imgWidth;
+    canvas.height = heightSB + heightWP;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.drawImage(imgSB, 0, 0, imgWidth, heightSB);
+    ctx.drawImage(imgWP, 0, heightSB, imgWidth, heightWP);
+    
+    ctx.beginPath();
+    ctx.moveTo(0, heightSB);
+    ctx.lineTo(imgWidth, heightSB);
+    ctx.strokeStyle = '#e1e8eb';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+  } 
+  else {
+    const imgWidth = 1000; 
+    
+    const heightSB = (imgSB.height / imgSB.width) * imgWidth;
+    const heightWP = (imgWP.height / imgWP.width) * imgWidth;
+    const canvasHeight = Math.max(heightSB, heightWP);
+    
+    canvas.width = imgWidth * 2; 
+    canvas.height = canvasHeight; 
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const ySB = (canvasHeight - heightSB) / 2;
+    ctx.drawImage(imgSB, 0, ySB, imgWidth, heightSB);
+    
+    const yWP = (canvasHeight - heightWP) / 2;
+    ctx.drawImage(imgWP, imgWidth, yWP, imgWidth, heightWP);
+    
+    ctx.beginPath();
+    ctx.moveTo(imgWidth, 0);
+    ctx.lineTo(imgWidth, canvasHeight);
+    ctx.strokeStyle = '#e1e8eb';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+  }
 
   return canvas.toDataURL('image/jpeg', 0.85); 
 };
