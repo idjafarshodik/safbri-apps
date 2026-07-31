@@ -1,6 +1,7 @@
 let currentStep = 1;
 const titles = ['Data Pekerjaan', 'Data Pelaksana', 'Foto Working Permit', 'Foto Safety Briefing'];
 const images = { WP: null, SB: null };
+const mediaSource = { WP: null, SB: null };
 let cameraStream = null;
 
 flatpickr("#tanggal_pekerjaan", { dateFormat: "d/m/Y", disableMobile: true });
@@ -33,7 +34,7 @@ const validateStep = (step) => {
   return isValid;
 };
 
-const nextStep = (targetStep, currentMediaStep) => {
+const nextStep = (targetStep) => {
   if (validateStep(currentStep)) {
     stopCamera();
     currentStep = targetStep;
@@ -80,16 +81,39 @@ const stopCamera = () => {
 const takeSnapshot = (type) => {
   const video = document.getElementById(`video-${type}`);
   const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  canvas.getContext('2d').drawImage(video, 0, 0);
+  const ctx = canvas.getContext('2d');
   
+  const vW = video.videoWidth;
+  const vH = video.videoHeight;
+  
+  let tW, tH;
+  if (type === 'SB') {
+    tW = Math.max(vW, vH);
+    tH = tW * (9 / 16); 
+  } else {
+    tH = Math.max(vW, vH);
+    tW = tH * (3 / 4);
+  }
+  
+  canvas.width = tW;
+  canvas.height = tH;
+  
+  const ratio = Math.max(tW / vW, tH / vH);
+  const cW = vW * ratio;
+  const cH = vH * ratio;
+  const cX = (tW - cW) / 2;
+  const cY = (tH - cH) / 2;
+  
+  ctx.drawImage(video, cX, cY, cW, cH);
+  
+  mediaSource[type] = 'camera';
   processImageResult(canvas.toDataURL('image/jpeg', 0.9), type);
   stopCamera();
 };
 
 const handleFile = (input, type) => {
   if (input.files && input.files[0]) {
+    mediaSource[type] = 'file';
     const reader = new FileReader();
     reader.onload = (e) => processImageResult(e.target.result, type);
     reader.readAsDataURL(input.files[0]);
@@ -117,6 +141,7 @@ const processImageResult = (dataUrl, type) => {
 
 const resetMedia = (type) => {
   images[type] = null;
+  mediaSource[type] = null;
   document.getElementById(`preview-${type}`).classList.add('hidden');
   document.getElementById(`retake-btn-${type}`).classList.add('hidden');
   document.getElementById(`init-ui-${type}`).classList.remove('hidden');
@@ -126,25 +151,52 @@ const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  const targetWidth = 1200;
-  const hSB = (images.SB.height / images.SB.width) * targetWidth;
-  const hWP = (images.WP.height / images.WP.width) * targetWidth;
-  
-  canvas.width = targetWidth;
-  canvas.height = hSB + hWP;
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
-  ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
-  
-  ctx.beginPath();
-  ctx.moveTo(0, hSB);
-  ctx.lineTo(targetWidth, hSB);
-  ctx.strokeStyle = '#e1e8eb';
-  ctx.lineWidth = 10;
-  ctx.stroke();
+  const isFileOnly = mediaSource.SB === 'file' && mediaSource.WP === 'file';
+  const isLandscapeSB = images.SB.width > images.SB.height;
+  const isLandscapeWP = images.WP.width > images.WP.height;
+
+  if (isFileOnly && (!isLandscapeSB || !isLandscapeWP)) {
+    const targetWidth = 1000;
+    const hSB = (images.SB.height / images.SB.width) * targetWidth;
+    const hWP = (images.WP.height / images.WP.width) * targetWidth;
+    const canvasHeight = Math.max(hSB, hWP);
+    
+    canvas.width = targetWidth * 2;
+    canvas.height = canvasHeight;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.drawImage(images.SB, 0, (canvasHeight - hSB) / 2, targetWidth, hSB);
+    ctx.drawImage(images.WP, targetWidth, (canvasHeight - hWP) / 2, targetWidth, hWP);
+    
+    ctx.beginPath();
+    ctx.moveTo(targetWidth, 0);
+    ctx.lineTo(targetWidth, canvasHeight);
+    ctx.strokeStyle = '#e1e8eb';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+  } else {
+    const targetWidth = 1200;
+    const hSB = (images.SB.height / images.SB.width) * targetWidth;
+    const hWP = (images.WP.height / images.WP.width) * targetWidth;
+    
+    canvas.width = targetWidth;
+    canvas.height = hSB + hWP;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
+    ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
+    
+    ctx.beginPath();
+    ctx.moveTo(0, hSB);
+    ctx.lineTo(targetWidth, hSB);
+    ctx.strokeStyle = '#e1e8eb';
+    ctx.lineWidth = 10;
+    ctx.stroke();
+  }
 
   return canvas.toDataURL('image/jpeg', 0.85); 
 };
