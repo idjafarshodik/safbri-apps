@@ -258,18 +258,18 @@ document.getElementById('safetyForm').addEventListener('submit', async (e) => {
     });
 
     if (response.ok) {
-      showToast("Laporan berhasil diamankan!", false);
       localStorage.clear(); 
-      currentStep = 5;      
-      updateUI();
+      currentStep = 5;     
     } else {
-      showToast("Gagal. Periksa koneksi internet.", true);
       btn.disabled = false;
       btn.innerText = 'KIRIM LAPORAN ✔';
+      currentStep = 6;     
+      updateUI();
     }
   } catch (error) {
-    showToast("Terjadi anomali server.", true);
     btn.disabled = false;
     btn.innerText = 'KIRIM LAPORAN ✔';
+    currentStep = 6;    
+    updateUI();
   }
 });

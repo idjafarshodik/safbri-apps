@@ -113,3 +113,13 @@ input[type="number"]::-webkit-inner-spin-button {
 @keyframes stroke {
   100% { stroke-dashoffset: 0; }
 }
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.5); }
+  70% { transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-pop {
+  animation: popIn 0.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}

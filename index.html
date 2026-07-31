@@ -49,19 +49,21 @@
   <div class="w-full max-w-md bg-white rounded-2xl shadow-xl border border-white/50 overflow-hidden relative min-h-[480px]">
     <form id="safetyForm" class="h-full">
 
-      <div id="step-0" class="step-card active p-6 md:p-8 h-full justify-center items-center text-center">
-        <div class="mb-6 transform hover:scale-105 transition-transform duration-300">
-          <svg class="w-24 h-24 mx-auto text-pln-main drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-          </svg>
+      <div id="step-0" class="step-card active h-full">
+        <div class="flex flex-col justify-center items-center h-full p-6 md:p-8 text-center">
+          <div class="mb-6 animate-pop">
+            <svg class="w-24 h-24 mx-auto text-pln-main drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-extrabold text-pln-dark mb-3">Siap Bekerja Aman?</h2>
+          <p class="text-pln-muted mb-8 text-sm leading-relaxed">
+            Amankan data pekerjaan Anda. Sistem otomatis menyimpan draf secara lokal jika koneksi terputus di area GI.
+          </p>
+          <button type="button" onclick="nextStep(1)" class="btn-kahoot w-full bg-pln-main text-white shadow-lg shadow-pln-main/30">
+            MULAI LAPORAN ➔
+          </button>
         </div>
-        <h2 class="text-2xl font-extrabold text-pln-dark mb-3">Siap Bekerja Aman?</h2>
-        <p class="text-pln-muted mb-8 text-sm leading-relaxed">
-          Amankan data pekerjaan Anda. Sistem otomatis menyimpan draf secara lokal jika koneksi terputus di area GI.
-        </p>
-        <button type="button" onclick="nextStep(1)" class="btn-kahoot w-full bg-pln-main text-white shadow-lg shadow-pln-main/30">
-          MULAI LAPORAN ➔
-        </button>
       </div>
       
       <div id="step-1" class="step-card p-6 md:p-8">
@@ -171,18 +173,36 @@
         </div>
       </div>
 
-      <div id="step-5" class="step-card p-6 md:p-8 h-full justify-center items-center text-center">
-        <div class="success-checkmark mb-4">
-          <svg class="w-full h-full" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-            <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
-            <path class="check-path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-          </svg>
+      <div id="step-5" class="step-card h-full">
+        <div class="flex flex-col justify-center items-center h-full p-6 md:p-8 text-center">
+          <div class="mb-6 animate-pop">
+            <svg class="w-24 h-24 mx-auto text-green-500 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-extrabold text-pln-dark mb-2">Laporan Terkirim!</h2>
+          <p class="text-pln-muted mb-8 text-sm">Data pekerjaan dan dokumentasi telah berhasil disubmit ke bot Telegram/WA.</p>
+          <button type="button" onclick="startNewReport()" class="font-bold text-pln-main hover:text-pln-dark transition-colors underline underline-offset-4 decoration-2">
+            Buat Laporan Baru
+          </button>
         </div>
-        <h2 class="text-2xl font-extrabold text-pln-dark mb-2">Laporan Terkirim!</h2>
-        <p class="text-pln-muted mb-8 text-sm">Data pekerjaan dan dokumentasi telah berhasil disubmit dan draf lokal telah diamankan.</p>
-        <button type="button" onclick="startNewReport()" class="font-bold text-pln-main hover:text-pln-dark transition-colors underline underline-offset-4 decoration-2">
-          Buat Laporan Baru
-        </button>
+      </div>
+
+      <div id="step-6" class="step-card h-full">
+        <div class="flex flex-col justify-center items-center h-full p-6 md:p-8 text-center">
+          <div class="mb-6 animate-pop">
+            <svg class="w-24 h-24 mx-auto text-red-500 drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-extrabold text-red-600 mb-2">Pengiriman Gagal</h2>
+          <p class="text-pln-muted mb-8 text-sm">Terjadi masalah koneksi atau anomali server. Jangan khawatir, draf foto dan teks Anda masih aman.</p>
+          <div class="flex gap-3 w-full">
+            <button type="button" onclick="prevStep(4)" class="btn-kahoot w-full bg-gray-200 text-gray-700 hover:bg-gray-300 border-gray-300">
+              KEMBALI & COBA LAGI
+            </button>
+          </div>
+        </div>
       </div>
 
     </form>
