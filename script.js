@@ -96,11 +96,10 @@ const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  const isFileOnly = mediaSource.SB === 'file' && mediaSource.WP === 'file';
   const isPortraitSB = images.SB.width <= images.SB.height;
   const isPortraitWP = images.WP.width <= images.WP.height;
 
-  if (isFileOnly && isPortraitSB && isPortraitWP) {
+  if (isPortraitSB && isPortraitWP) {
     const targetWidth = 1200;
     const hSB = (images.SB.height / images.SB.width) * targetWidth;
     const hWP = (images.WP.height / images.WP.width) * targetWidth;
