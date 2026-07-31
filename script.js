@@ -1,165 +1,173 @@
-const els = {
-  form: document.getElementById('safetyForm'),
-  btn: document.getElementById('submitBtn'),
-  valMsg: document.getElementById('validation-msg'),
-  
-  fotoSB: document.getElementById('foto-SB'),
-  fotoWP: document.getElementById('foto-WP'),
-  previewSB: document.getElementById('preview-SB'),
-  previewWP: document.getElementById('preview-WP'),
-  
-  containerSB: document.getElementById('container-SB'),
-  containerWP: document.getElementById('container-WP')
-};
+// --- STATE MANAGEMENT ---
+let currentStep = 1;
+const titles = ['Data Pekerjaan', 'Data Pelaksana', 'Foto Working Permit', 'Foto Safety Briefing'];
+const images = { WP: null, SB: null }; // Menyimpan objek gambar
+let cameraStream = null;
 
-flatpickr("#tanggal_pekerjaan", {
-  dateFormat: "d/m/Y",
-  disableMobile: true
-});
+// --- INITIALIZATION ---
+flatpickr("#tanggal_pekerjaan", { dateFormat: "d/m/Y", disableMobile: true });
 
-let imgSB = null;
-let imgWP = null;
-
-const readImage = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => resolve({ img, src: e.target.result });
-      img.onerror = reject;
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
+const updateUI = () => {
+  document.querySelectorAll('.step-card').forEach((el, index) => {
+    el.classList.toggle('active', index + 1 === currentStep);
   });
+  document.getElementById('current-step-indicator').innerText = currentStep;
+  document.getElementById('step-title').innerText = titles[currentStep - 1];
+  document.getElementById('progress-bar').style.width = `${(currentStep / 4) * 100}%`;
 };
 
-const resetValidationVisuals = () => {
-  els.valMsg.classList.add('hidden');
-  els.valMsg.innerText = '';
-  
-  [els.containerSB, els.containerWP].forEach(container => {
-    container.classList.remove('border-red-400', 'bg-red-50', 'animate-shake');
-    container.classList.add('border-pln-border', 'bg-[#fcfdfd]');
+// --- NAVIGATION LOGIC ---
+const validateStep = (step) => {
+  const inputs = document.querySelectorAll(`#step-${step} input[required]`);
+  let isValid = true;
+  inputs.forEach(input => {
+    if (!input.value.trim()) {
+      input.classList.add('border-red-500');
+      isValid = false;
+    } else {
+      input.classList.remove('border-red-500');
+    }
   });
+  
+  if (step === 3 && !images.WP) { alert("Harap ambil/pilih foto Working Permit terlebih dahulu!"); return false; }
+  
+  return isValid;
 };
 
-const triggerValidationVisuals = (missingSB, missingWP) => {
-  els.valMsg.innerText = 'PROSEDUR DITOLAK: Harap unggah seluruh dokumentasi foto yang diwajibkan.';
-  els.valMsg.classList.remove('hidden');
-  
-  if (missingSB) {
-    els.containerSB.classList.remove('border-pln-border', 'bg-[#fcfdfd]');
-    els.containerSB.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
+const nextStep = (targetStep, currentMediaStep) => {
+  if (validateStep(currentStep)) {
+    stopCamera(); // Matikan kamera setiap kali pindah halaman
+    currentStep = targetStep;
+    updateUI();
+  } else {
+    alert("Harap lengkapi semua kolom yang diwajibkan.");
   }
-  
-  if (missingWP) {
-    els.containerWP.classList.remove('border-pln-border', 'bg-[#fcfdfd]');
-    els.containerWP.classList.add('border-red-400', 'bg-red-50', 'animate-shake');
-  }
-  
-  setTimeout(() => {
-    els.containerSB.classList.remove('animate-shake');
-    els.containerWP.classList.remove('animate-shake');
-  }, 500);
 };
 
-const handleImageUpload = async (file, previewEl, containerEl, type) => {
-  if (!file) return;
-  resetValidationVisuals();
+const prevStep = (targetStep) => {
+  stopCamera();
+  currentStep = targetStep;
+  updateUI();
+};
+
+// --- CAMERA & MEDIA LOGIC ---
+const startCamera = async (type) => {
+  const video = document.getElementById(`video-${type}`);
+  const guide = document.getElementById(`guide-${type}`);
+  const ui = document.getElementById(`init-ui-${type}`);
+  const snapBtn = document.getElementById(`snap-btn-${type}`);
   
   try {
-    const result = await readImage(file);
-    previewEl.src = result.src;
+    cameraStream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: "environment" } // Prioritas kamera belakang
+    });
+    video.srcObject = cameraStream;
     
-    const wrapper = type === 'SB' ? document.getElementById('wrapper-preview-SB') : document.getElementById('wrapper-preview-WP');
-    wrapper.classList.remove('hidden');
-    
-    containerEl.classList.remove('border-red-400', 'bg-red-50');
-    containerEl.classList.add('border-pln-border', 'bg-[#fcfdfd]');
-    
-    if (type === 'SB') imgSB = result.img;
-    if (type === 'WP') imgWP = result.img;
+    ui.classList.add('hidden');
+    video.classList.remove('hidden');
+    guide.classList.remove('hidden');
+    snapBtn.classList.remove('hidden');
   } catch (error) {
-    alert('Preview Error');
+    alert("Akses kamera ditolak atau tidak didukung browser ini. Silakan gunakan tombol Galeri.");
   }
 };
 
-els.fotoSB.addEventListener('change', (e) => handleImageUpload(e.target.files[0], els.previewSB, els.containerSB, 'SB'));
-els.fotoWP.addEventListener('change', (e) => handleImageUpload(e.target.files[0], els.previewWP, els.containerWP, 'WP'));
+const stopCamera = () => {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+};
 
+const takeSnapshot = (type) => {
+  const video = document.getElementById(`video-${type}`);
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  
+  processImageResult(canvas.toDataURL('image/jpeg', 0.9), type);
+  stopCamera();
+};
+
+const handleFile = (input, type) => {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = (e) => processImageResult(e.target.result, type);
+    reader.readAsDataURL(input.files[0]);
+  }
+};
+
+const processImageResult = (dataUrl, type) => {
+  const img = new Image();
+  img.onload = () => {
+    images[type] = img; // Simpan ke state
+    
+    // Update UI Preview
+    document.getElementById(`video-${type}`).classList.add('hidden');
+    document.getElementById(`guide-${type}`).classList.add('hidden');
+    document.getElementById(`snap-btn-${type}`).classList.add('hidden');
+    document.getElementById(`init-ui-${type}`).classList.add('hidden');
+    
+    const preview = document.getElementById(`preview-${type}`);
+    preview.src = dataUrl;
+    preview.classList.remove('hidden');
+    
+    document.getElementById(`retake-btn-${type}`).classList.remove('hidden');
+  };
+  img.src = dataUrl;
+};
+
+const resetMedia = (type) => {
+  images[type] = null;
+  document.getElementById(`preview-${type}`).classList.add('hidden');
+  document.getElementById(`retake-btn-${type}`).classList.add('hidden');
+  document.getElementById(`init-ui-${type}`).classList.remove('hidden');
+};
+
+// --- STRICT VERTICAL COLLAGE LOGIC ---
 const generateCollage = () => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   
-  const isLandscapeSB = imgSB.width > imgSB.height;
-  const isLandscapeWP = imgWP.width > imgWP.height;
-
-  if (isLandscapeSB && isLandscapeWP) {
-    const imgWidth = 1400; 
-    
-    const heightSB = (imgSB.height / imgSB.width) * imgWidth;
-    const heightWP = (imgWP.height / imgWP.width) * imgWidth;
-    
-    canvas.width = imgWidth;
-    canvas.height = heightSB + heightWP;
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    ctx.drawImage(imgSB, 0, 0, imgWidth, heightSB);
-    ctx.drawImage(imgWP, 0, heightSB, imgWidth, heightWP);
-    
-    ctx.beginPath();
-    ctx.moveTo(0, heightSB);
-    ctx.lineTo(imgWidth, heightSB);
-    ctx.strokeStyle = '#e1e8eb';
-    ctx.lineWidth = 6;
-    ctx.stroke();
-
-  } 
-  else {
-    const imgWidth = 1000; 
-    
-    const heightSB = (imgSB.height / imgSB.width) * imgWidth;
-    const heightWP = (imgWP.height / imgWP.width) * imgWidth;
-    const canvasHeight = Math.max(heightSB, heightWP);
-    
-    canvas.width = imgWidth * 2; 
-    canvas.height = canvasHeight; 
-    
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    const ySB = (canvasHeight - heightSB) / 2;
-    ctx.drawImage(imgSB, 0, ySB, imgWidth, heightSB);
-    
-    const yWP = (canvasHeight - heightWP) / 2;
-    ctx.drawImage(imgWP, imgWidth, yWP, imgWidth, heightWP);
-    
-    ctx.beginPath();
-    ctx.moveTo(imgWidth, 0);
-    ctx.lineTo(imgWidth, canvasHeight);
-    ctx.strokeStyle = '#e1e8eb';
-    ctx.lineWidth = 6;
-    ctx.stroke();
-  }
+  // Mengikuti standar pusat: Atas-Bawah persis seperti Referensi Gambar 2
+  // Top: Safety Briefing (SB) | Bottom: Working Permit (WP)
+  const targetWidth = 1200; // Resolusi tinggi agar tulisan WP terbaca jelas
+  
+  // Hitung tinggi proporsional berdasarkan target lebar 1200px
+  const hSB = (images.SB.height / images.SB.width) * targetWidth;
+  const hWP = (images.WP.height / images.WP.width) * targetWidth;
+  
+  canvas.width = targetWidth;
+  canvas.height = hSB + hWP; // Tinggi total = gabungan keduanya
+  
+  // Background putih
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  
+  // Gambar disusun berurutan dari atas ke bawah
+  ctx.drawImage(images.SB, 0, 0, targetWidth, hSB);
+  ctx.drawImage(images.WP, 0, hSB, targetWidth, hWP);
+  
+  // Beri garis pembatas tegas di antara kedua foto
+  ctx.beginPath();
+  ctx.moveTo(0, hSB);
+  ctx.lineTo(targetWidth, hSB);
+  ctx.strokeStyle = '#e1e8eb';
+  ctx.lineWidth = 10;
+  ctx.stroke();
 
   return canvas.toDataURL('image/jpeg', 0.85); 
 };
 
-els.form.addEventListener('submit', async (e) => {
+// --- SUBMIT LOGIC ---
+document.getElementById('safetyForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  resetValidationVisuals();
+  if (!images.SB) { alert("Harap ambil/pilih foto Safety Briefing terlebih dahulu!"); return; }
   
-  if (!imgSB || !imgWP) {
-    triggerValidationVisuals(!imgSB, !imgWP);
-    const firstMissing = !imgSB ? els.containerSB : els.containerWP;
-    firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  els.btn.disabled = true;
-  els.btn.innerText = 'MENGIRIM LAPORAN...';
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerText = 'MENGIRIM...';
 
   try {
     const payload = {
@@ -173,6 +181,7 @@ els.form.addEventListener('submit', async (e) => {
       foto_collage: generateCollage()
     };
 
+    // Ingat: pastikan ini diarahkan ke fungsi middleware '/api/submit' di production
     const response = await fetch('/api/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -188,7 +197,7 @@ els.form.addEventListener('submit', async (e) => {
   } catch (error) {
     alert("Terjadi anomali pada sistem internal.");
   } finally {
-    els.btn.disabled = false;
-    els.btn.innerText = 'KIRIM LAPORAN INSPEKSI';
+    btn.disabled = false;
+    btn.innerText = 'KIRIM LAPORAN ✔';
   }
 });
