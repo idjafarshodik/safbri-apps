@@ -1,0 +1,37 @@
+.form-input {
+  border-radius: 8px;
+  border: 1.5px solid #e1e8eb;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  background-color: #fcfdfd;
+  color: #16232b;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.form-input:focus {
+  border-color: #14a2ba;
+  box-shadow: 0 0 0 4px rgba(20, 162, 186, 0.22);
+  background-color: #ffffff;
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: #94a5ad;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Safety Briefing ULTG Sampang</title>
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pln: {
+              main: '#14a2ba',
+              dark: '#125d72',
+              bg: '#f2f7f9',
+              soft: '#eaf5f8',
+              border: '#e1e8eb',
+              text: '#16232b',
+              muted: '#5b7280'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          },
+          boxShadow: {
+            'pln-card': '0 1px 2px rgba(18,93,114,0.04), 0 10px 30px rgba(18,93,114,0.07)',
+            'pln-hover': '0 4px 10px rgba(18,93,114,0.10), 0 14px 34px rgba(18,93,114,0.10)'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen text-pln-text bg-pln-bg flex items-center justify-center p-4 md:p-8 relative">
+
+  <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <div class="absolute top-[-10%] right-[0%] w-[1100px] h-[500px] bg-[rgba(20,162,186,0.06)] rounded-full blur-3xl"></div>
+    <div class="absolute top-[0%] left-[-10%] w-[900px] h-[500px] bg-[rgba(18,93,114,0.05)] rounded-full blur-3xl"></div>
+  </div>
+
+  <div class="w-full max-w-[820px] bg-white rounded-[18px] shadow-pln-card p-6 md:p-10 z-10 border border-[#edf2f4]">
+    
+    <div class="text-center mb-8">
+      <h4 class="text-[1.7rem] font-extrabold tracking-[-0.01em] bg-clip-text text-transparent bg-gradient-to-br from-pln-dark to-pln-main mb-1">
+        SAFBRI ULTG SAMPANG
+      </h4>
+      <p class="text-[0.88rem] text-pln-muted">Aplikasi bantu perekaman safety briefing ULTG Sampang</p>
+    </div>
+    
+    <form id="safetyForm" class="space-y-6">
+      
+      <div class="flex items-center mt-9 mb-5">
+        <span class="inline-flex items-center justify-center w-[26px] h-[26px] rounded-lg bg-pln-soft text-pln-dark mr-3 flex-shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M16 13H8m8 4H8m2-8H8"/></svg>
+        </span>
+        <h5 class="font-bold text-[1.02rem] text-pln-dark tracking-[0.01em]">Pekerjaan</h5>
+        <div class="flex-1 h-px bg-pln-border ml-4"></div>
+      </div>
+
+      <div>
+        <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Nama Pekerjaan</label>
+        <input id="nama_pekerjaan" type="text" class="form-input w-full" required />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Tanggal Pekerjaan</label>
+          <input id="tanggal_pekerjaan" type="text" class="form-input w-full bg-white" placeholder="dd/mm/yyyy" required />
+        </div>
+        <div>
+          <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Lokasi Pekerjaan</label>
+          <input id="lokasi" type="text" class="form-input w-full" required />
+        </div>
+      </div>
+
+      <div class="flex items-center mt-9 mb-5">
+        <span class="inline-flex items-center justify-center w-[26px] h-[26px] rounded-lg bg-pln-soft text-pln-dark mr-3 flex-shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </span>
+        <h5 class="font-bold text-[1.02rem] text-pln-dark tracking-[0.01em]">Detail</h5>
+        <div class="flex-1 h-px bg-pln-border ml-4"></div>
+      </div>
+
+      <div>
+        <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Tim Pelaksana / Nama Vendor</label>
+        <input id="tim_pelaksana" type="text" class="form-input w-full" required />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Nama Pengawas K3</label>
+          <input id="pengawas_k3" type="text" class="form-input w-full" required />
+        </div>
+        <div>
+          <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Nama Pengawas Pekerjaan</label>
+          <input id="pengawas_pekerjaan" type="text" class="form-input w-full" required />
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em] mb-1.5">Jumlah Pelaksana (Orang)</label>
+        <input id="jumlah_pelaksana" type="number" min="1" class="form-input w-full" required />
+      </div>
+
+      <div class="flex items-center mt-9 mb-5">
+        <span class="inline-flex items-center justify-center w-[26px] h-[26px] rounded-lg bg-pln-soft text-pln-dark mr-3 flex-shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        </span>
+        <h5 class="font-bold text-[1.02rem] text-pln-dark tracking-[0.01em]">Eviden</h5>
+        <div class="flex-1 h-px bg-pln-border ml-4"></div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div id="container-SB" class="flex flex-col gap-2 p-4 rounded-xl border-[1.5px] border-pln-border bg-[#fcfdfd] transition-colors">
+        <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em]">Foto Safety Briefing</label>
+        <input id="foto-SB" type="file" accept="image/*" class="w-full text-sm text-pln-muted file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-pln-soft file:text-pln-dark cursor-pointer transition-colors" />
+        <div id="wrapper-preview-SB" class="w-full h-40 mt-2 rounded-lg overflow-hidden border border-pln-border bg-white hidden">
+            <img id="preview-SB" class="w-full h-full object-cover" />
+        </div>
+        </div>
+
+        <div id="container-WP" class="flex flex-col gap-2 p-4 rounded-xl border-[1.5px] border-pln-border bg-[#fcfdfd] transition-colors">
+        <label class="block text-[0.82rem] font-semibold text-pln-muted uppercase tracking-[0.03em]">Foto Working Permit</label>
+        <input id="foto-WP" type="file" accept="image/*" class="w-full text-sm text-pln-muted file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-semibold file:bg-pln-soft file:text-pln-dark cursor-pointer transition-colors" />
+        <div id="wrapper-preview-WP" class="w-full h-40 mt-2 rounded-lg overflow-hidden border border-pln-border bg-white hidden">
+            <img id="preview-WP" class="w-full h-full object-cover" />
+        </div>
+        </div>
+
+      <div id="validation-msg" class="hidden bg-red-50 text-red-600 text-sm font-semibold p-3 rounded-lg border border-red-200 text-center"></div>
+
+      <button id="submitBtn" type="submit" class="w-full mt-8 bg-gradient-to-br from-pln-dark to-pln-main text-white font-bold py-3.5 px-4 rounded-[12px] hover:translate-y-[-2px] hover:shadow-pln-hover active:translate-y-0 transition-all uppercase tracking-[0.01em] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+        Kirim
+      </button>
+    </form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
